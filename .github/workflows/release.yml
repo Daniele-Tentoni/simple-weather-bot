@@ -1,0 +1,47 @@
+name: Deploy on Heroku
+
+on:
+  push:
+    branches:
+      - "main"
+    paths-ignore:
+      - "**/*.md"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_MAIL }}
+          justlogin: true
+
+      - name: Deploy the dyno
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_MAIL }}
+          justlogin: true
+
+  notification:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send custom Telegram message
+        uses: appleboy/telegram-action@2efd232
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.event_name }} event,
+            on github.com/${{ github.repository }},
+            <b>${{ github.event.head_commit.message }}</b>
+            ✅ <b>SUCCEDED</b> ✅
+          format: html
+          disable_web_page_preview: true
