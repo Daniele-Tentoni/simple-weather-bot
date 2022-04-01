@@ -3,6 +3,7 @@ import logging
 from typing import Any
 
 from aiogram import Bot, Dispatcher, executor, types
+from aiogram.dispatcher import filters
 from aiogram.types import Message
 from aiogram.utils.executor import start_webhook
 
@@ -29,6 +30,12 @@ async def command_start_handler(message: Message) -> None:
 @dp.message_handler(commands=["id"])
 async def command_id_handler(message: Message) -> None:
   await message.answer(f'Your id is {message.chat.id}')
+
+@dp.message_handler(
+  filters.RegexpCommandsFilter(regexp_commands=['get\s([a-zA-Z0-9]*)'])
+)
+async def command_forecast_handler(message: Message, regexp_command) -> None:
+  await message.answer(f"You have required forecast for {regexp_command.group(1)}")
 
 @dp.message_handler()
 async def echo_handler(message: types.Message) -> None:
