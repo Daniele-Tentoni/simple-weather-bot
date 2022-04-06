@@ -9,7 +9,7 @@ from aiogram.utils.executor import start_webhook
 
 import os
 
-TOKEN = os.environ.get("T_TOKEN", "")
+TOKEN = "5104103421:AAEN4ZRMwGI_WGo8i9ubUq_eakj-eqmObB0" # os.environ.get("T_TOKEN", "")
 WEBAPP_HOST = "localhost"
 WEBAPP_PORT = int(os.environ.get("PORT", 5000))
 WEBHOOK_HOST = "https://tento-simple-weather-bot.herokuapp.com/"
@@ -32,10 +32,24 @@ async def command_id_handler(message: Message) -> None:
   await message.answer(f'Your id is {message.chat.id}')
 
 @dp.message_handler(
-  filters.RegexpCommandsFilter(regexp_commands=['get\s([a-zA-Z0-9]*)'])
+  filters.RegexpCommandsFilter(regexp_commands=['get\s*([a-zA-Z0-9]+)'])
 )
 async def command_forecast_handler(message: Message, regexp_command) -> None:
-  await message.answer(f"You have required forecast for {regexp_command.group(1)}")
+  import json
+  import requests
+  api_key = "095e72fe0e443261be9fa4aeb5248a57" # os.environ.get("WEATHER_API_KEY", "")
+  url = f"https://api.openweathermap.org/data/2.5/weather?q={regexp_command.group(1)}&appid={api_key}&units=metric"
+  response = requests.get(url)
+  j = response.json()
+  w: list = j['weather'][0]
+  d = w['description']
+  reply = f"You have required forecast for {regexp_command.group(1)}"
+  reply = f"{reply}\nThe weather in {j['name']} is {d}"
+  await message.answer(reply, reply=True)
+
+@dp.message_handler(commands=["get"])
+async def command_get_handler(message: Message) -> None:
+  await message.answer('Tell me a location to know the weather about', reply=True)
 
 @dp.message_handler()
 async def echo_handler(message: types.Message) -> None:
@@ -62,15 +76,15 @@ async def on_shutdown(dp):
 
 def main() -> None:
   # Uncomment this line to execute in local environment
-  # executor.start_polling(dp, skip_updates=True)
-  start_webhook(
+  executor.start_polling(dp, skip_updates=True)
+  """start_webhook(
     dispatcher=dp,
     on_startup=on_startup,
     on_shutdown=on_shutdown,
     skip_updates=True,
     host=WEBAPP_HOST,
     port=WEBAPP_PORT,
-  )
+  )"""
 
 if __name__ == "__main__":
   main()
