@@ -68,6 +68,8 @@ async def echo_handler(message: types.Message) -> None:
 
 async def on_startup(dp):
   await bot.set_webhook(WEBHOOK_HOST)
+  info = await bot.get_webhook_info()
+  logging.info(f"Received info about webhook {info}")
 
 async def on_shutdown(dp):
   logging.warning("Shutting down...")
@@ -77,6 +79,7 @@ async def on_shutdown(dp):
 def main() -> None:
   # Uncomment this line to execute in local environment
   # executor.start_polling(dp, skip_updates=True)
+  logging.info(f"Running on {WEBHOOK_HOST}:{WEBAPP_PORT}, {WEBAPP_HOST}")
   start_webhook(
     dispatcher=dp,
     webhook_path="/",
