@@ -1,6 +1,7 @@
 import logging
 
 from aiogram import Bot, Dispatcher, types # executor
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher import filters
 from aiogram.types import Message
 from aiogram.utils.executor import start_webhook
@@ -12,11 +13,13 @@ import aiohttp
 TOKEN = os.environ.get("T_TOKEN", "")
 WEBAPP_HOST = "localhost"
 WEBAPP_PORT = int(os.environ.get("PORT", 5000))
-WEBHOOK_HOST = "https://tento-simple-weather-bot.herokuapp.com/"
+WEBHOOK_HOST = "https://tento-simple-weather-bot.herokuapp.com" # Change with your host...
 
+logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
 logger = logging.getLogger(__name__)
+dp.middleware.setup(LoggingMiddleware())
 
 @dp.message_handler(commands=["start"])
 async def command_start_handler(message: Message) -> None:
@@ -67,6 +70,7 @@ async def echo_handler(message: types.Message) -> None:
     await message.answer("Nice try!")
 
 async def on_startup(dp):
+  logging.warning("Starting...")
   await bot.set_webhook(WEBHOOK_HOST)
   info = await bot.get_webhook_info()
   logging.info(f"Received info about webhook {info}")
