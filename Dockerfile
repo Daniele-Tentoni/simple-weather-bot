@@ -4,15 +4,14 @@ WORKDIR /code
 
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 
-ENV PATH="${HOME}/.poetry/bin/:${PATH}"
+ENV PATH="${PATH}:${HOME}/.poetry/bin/"
 
-RUN $HOME/.poetry/bin/poetry config virtualenvs.create false
+RUN ${HOME}/.poetry/bin/poetry config virtualenvs.create false
 
-COPY poetry.lock pyproject.toml /code/
+COPY poetry.lock pyproject.toml docker_entrypoint.sh /code/
 
-RUN $HOME/.poetry/bin/poetry install --no-interaction --no-ansi --no-dev
+RUN ${HOME}/.poetry/bin/poetry install --no-interaction --no-ansi --no-dev
 
 COPY simple_weather_bot /code/simple_weather_bot
-COPY docker_entrypoint.sh /code/
 
 CMD ["./docker_entrypoint.sh"]
