@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+ls -al ~/.poetry/bin/
+
 ls -al
 
 ls -al simple_weather_bot
