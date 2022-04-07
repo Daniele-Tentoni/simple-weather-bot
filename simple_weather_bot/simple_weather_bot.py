@@ -11,9 +11,11 @@ import os
 import aiohttp
 
 TOKEN = os.environ.get("T_TOKEN", "")
-WEBAPP_HOST = "localhost"
+WEBAPP_HOST = '0.0.0.0'
 WEBAPP_PORT = int(os.environ.get("PORT", 5000))
 WEBHOOK_HOST = "https://tento-simple-weather-bot.herokuapp.com" # Change with your host...
+WEBHOOK_PATH = f'/webhook/{TOKEN}'
+WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN, parse_mode="HTML")
@@ -71,7 +73,7 @@ async def echo_handler(message: types.Message) -> None:
 
 async def on_startup(dp):
   logging.warning("Starting...")
-  await bot.set_webhook(WEBHOOK_HOST)
+  await bot.set_webhook(WEBHOOK_URL)
   info = await bot.get_webhook_info()
   logging.info(f"Received info about webhook {info}")
 
@@ -86,7 +88,7 @@ def main() -> None:
   logging.info(f"Running on {WEBHOOK_HOST}:{WEBAPP_PORT}, {WEBAPP_HOST}")
   start_webhook(
     dispatcher=dp,
-    webhook_path="/",
+    webhook_path=WEBHOOK_PATH,
     on_startup=on_startup,
     on_shutdown=on_shutdown,
     skip_updates=True,
