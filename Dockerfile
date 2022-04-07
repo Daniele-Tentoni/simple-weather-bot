@@ -14,4 +14,5 @@ RUN ${HOME}/.poetry/bin/poetry install --no-interaction --no-ansi --no-dev
 
 COPY simple_weather_bot /code/simple_weather_bot
 
-CMD ["./docker_entrypoint.sh"]
+CMD ["python", "simple_weather_bot/simple_weather_bot.py"]
+# ["./docker_entrypoint.sh"]
