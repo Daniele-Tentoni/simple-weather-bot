@@ -7,6 +7,8 @@ from aiogram.utils.executor import start_webhook
 
 import os
 
+import aiohttp
+
 TOKEN = os.environ.get("T_TOKEN", "")
 WEBAPP_HOST = "localhost"
 WEBAPP_PORT = int(os.environ.get("PORT", 5000))
@@ -33,16 +35,17 @@ async def command_id_handler(message: Message) -> None:
   filters.RegexpCommandsFilter(regexp_commands=['get\s*([a-zA-Z0-9]+)'])
 )
 async def command_forecast_handler(message: Message, regexp_command) -> None:
-  import requests
   api_key = os.environ.get("WEATHER_API_KEY", "")
-  url = f"https://api.openweathermap.org/data/2.5/weather?q={regexp_command.group(1)}&appid={api_key}&units=metric"
-  response = requests.get(url)
-  j = response.json()
-  w: list = j['weather'][0]
-  d = w['description']
-  reply = f"You have required forecast for {regexp_command.group(1)}"
-  reply = f"{reply}\nThe weather in {j['name']} is {d}"
-  await message.answer(reply, reply=True)
+  location = regexp_command.group(1)
+  url = f"https://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
+  async with aiohttp.ClientSession() as session:
+    async with session.get(url) as resp:
+      j = await resp.json()
+      w: list = j['weather'][0]
+      d = w['description']
+      reply = f"You have required forecast for {location}"
+      reply = f"{reply}\nThe weather in {j['name']} is {d}"
+      await message.answer(reply, reply=True)
 
 @dp.message_handler(commands=["get"])
 async def command_get_handler(message: Message) -> None:
